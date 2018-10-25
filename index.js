@@ -1,1 +1,1 @@
-console.log('hello nuk');
+module.exports = require('./src/Nuk');

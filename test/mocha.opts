@@ -1,0 +1,3 @@
+-r test/jsdom-global
+--timeout 5000
+--exit
