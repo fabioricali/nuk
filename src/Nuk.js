@@ -1,15 +1,20 @@
 class Nuk extends HTMLElement{
     constructor() {
         super();
-        this.shadow = this.attachShadow({mode: 'open'});
-        this.shadow.innerHTML = 'hello';
+        this.shadowRoot = this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
+        this.render();
+        this.onMount();
     }
 
     onMount() {}
 
-    connectedCallback() {
-        console.log('connected');
-        this.onMount()
+    template() {}
+
+    render() {
+        this.shadowRoot.innerHTML = this.template();
     }
 }
 

@@ -10,17 +10,22 @@ describe('Nuk', function () {
             window.customElements.define('x-component', class extends Nuk {
                 constructor() {
                     super();
-                    console.log(this.shadow)
-                    this.innerHTML = 'ciao'
-                    console.log(this.shadow)
+                }
+
+                template() {
+                    return `
+                        <div> 
+                            hello Nuk
+                        </div>
+                    `;
                 }
 
                 onMount() {
-                    console.log('MOUNTED')
+                    console.log(this.shadowRoot);
                 }
             });
 
-            document.body.innerHTML = '<x-component></x-component>';
+            document.body.innerHTML = '<x-component/>';
 
 
             console.log(document.body.innerHTML)
