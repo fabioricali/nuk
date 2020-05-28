@@ -39,7 +39,7 @@ describe('doz cli', function () {
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
-                'doz/dist react',
+                'doz/dist react/umd',
                 TESTING
             ]);
 
