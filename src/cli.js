@@ -7,7 +7,7 @@ const chalk = require('chalk');
 
 console.log(
     chalk.magentaBright(
-        figlet.textSync('Nuk cli')
+        figlet.textSync('nuk')
     )
 );
 

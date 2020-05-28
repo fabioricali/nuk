@@ -12,11 +12,34 @@ describe('doz cli', function () {
 
     describe('install', function () {
 
-        it('create', function (done) {
+        it('install all', function (done) {
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
-                'doz lib2 lib3',
+                'doz',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install dist', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'doz/dist react',
                 TESTING
             ]);
 

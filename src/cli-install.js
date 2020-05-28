@@ -8,6 +8,7 @@ const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
 
+const VENDORS_FOLDER = 'vendors_dist';
 (async function () {
 
     try {
@@ -35,21 +36,37 @@ const fs = require('fs-extra');
         }*/
 
         distPackages = distPackages.split(' ');
-        let distPackageName;
+        let distPackageExpression;
 
         for (let i = 0; i < distPackages.length; i++) {
-            distPackageName = distPackages[i];
+            distPackageExpression = distPackages[i];
 
-            if (!distPackageName) continue;
+            if (!distPackageExpression) continue;
 
             // ==== STEP 1 ====
-            console.log(`Downloading ${distPackageName}...`);
+            console.log(`Try to install ${distPackageExpression}...`);
 
-            let projectPath = `${cwd}/vendors_dist/${distPackageName}`;
+            let distPackageExpressionParts = distPackageExpression.split('/');
+            let distPackageName = distPackageExpressionParts[0];
+            // Remove first item.. package name
+            distPackageExpressionParts.shift();
+            let packageFilesPath = distPackageExpressionParts.join('/');
 
-            if (isTesting) {
-                await fs.copy('../repo/mylib', projectPath);
-            } else {
+            //await fs.ensureDir(`${cwd}/${VENDORS_FOLDER}/__processing__`);
+
+            //let projectPath = `${cwd}/${VENDORS_FOLDER}/${distPackageName}`;
+
+            let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
+            let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
+
+            await fs.move(tgzFile, `${VENDORS_FOLDER}/__processing__/${tgzFile}/${tgzFile}`, {overwrite: true});
+            await exec(`tar -xzf ${VENDORS_FOLDER}/__processing__/${tgzFile}/${tgzFile} -C ${VENDORS_FOLDER}/__processing__/${tgzFile}`);
+
+            await fs.copy(`${VENDORS_FOLDER}/__processing__/${tgzFile}/package/${packageFilesPath}`, `${VENDORS_FOLDER}/${fileWithoutTgz}/`);
+
+            //if (isTesting) {
+                //await fs.copy('../repo/mylib', projectPath);
+            //} else {
                 // ==== STEP 2 ====
                 //await downloadRepo(REPO.APP, projectPath);
 
@@ -61,15 +78,19 @@ const fs = require('fs-extra');
                 // install dependencies
                 //console.log(`Installing dependencies...`);
                 //await exec(`npm install`);
-            }
+            //}
 
-            nukJSON.dependencies[distPackageName] = '0.0.0';
+            let packageVersion = fileWithoutTgz.replace(distPackageName + '-', '');
+            nukJSON.dependencies[distPackageName] = packageVersion;
         }
 
         // Update nuk.json
         await fs.writeJson('nuk.json', nukJSON, {
             spaces: '  '
         });
+
+        // Remove __processing__ folder
+        await fs.remove(`${VENDORS_FOLDER}/__processing__`);
         console.log(chalk.greenBright('the packages are installed!'));
     } catch (e) {
         console.error(e.message);
