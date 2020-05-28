@@ -1,1 +1,1 @@
-module.exports = require('./src/Nuk');
+module.exports = require('./src/cli');
