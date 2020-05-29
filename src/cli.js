@@ -6,7 +6,7 @@ const figlet = require('figlet');
 const chalk = require('chalk');
 
 console.log(
-    chalk.magentaBright(
+    chalk.greenBright(
         figlet.textSync('nuk')
     )
 );
@@ -16,3 +16,4 @@ program
     .command('install <name>', 'install dist package')
     .parse(process.argv)
 ;
+//console.log(`cheese: ${program.destination}`);

@@ -15,6 +15,7 @@ const PROCESSING_FOLDER = '__processing__';
 
     try {
         program
+            .option('-d, --destination <value>', 'destination folder')
             .parse(process.argv)
         ;
 
@@ -38,10 +39,12 @@ const PROCESSING_FOLDER = '__processing__';
         const CWD = process.cwd();
 
         distPackages = distPackages.split(' ');
-        let distPackageExpression;
+
+        //console.log('program.opts()', program.opts())
+        let newDestination = (program.destination || '').trim();
 
         for (let i = 0; i < distPackages.length; i++) {
-            distPackageExpression = distPackages[i];
+            let distPackageExpression = distPackages[i];
 
             if (!distPackageExpression) continue;
 
@@ -72,11 +75,17 @@ const PROCESSING_FOLDER = '__processing__';
             await exec(`tar -xzf ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
 
             // Copy preselected folder to final destination
-            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/`);
+            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/${newDestination}`);
 
             // Add some info to nuk.json
-            if (!nukJSON.expressions.includes(distPackageExpression))
+            // Add expression
+            if (newDestination) {
+                distPackageExpression += ' -d ' + newDestination;
+            }
+            if (!nukJSON.expressions.includes(distPackageExpression)) {
                 nukJSON.expressions.push(distPackageExpression);
+            }
+            // Add package version
             nukJSON.dependencies[distPackageName] = fileWithoutTgz.replace(distPackageName + '-', '');
         }
 

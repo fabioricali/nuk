@@ -12,7 +12,7 @@ describe('doz cli', function () {
 
     describe('install', function () {
 
-        it('install all', function (done) {
+        it('install single package', function (done) {
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
@@ -35,7 +35,7 @@ describe('doz cli', function () {
             });
         });
 
-        it('install dist', function (done) {
+        it('install multiple dist', function (done) {
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
@@ -58,7 +58,31 @@ describe('doz cli', function () {
             });
         });
 
-        it('app name empty', function (done) {
+        it('install single package with destination folder', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'doz',
+                '-d mydist',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install all from nuk.json', function (done) {
 
             const cli = spawn('node', [
                 'src/cli.js',
