@@ -9,6 +9,8 @@ const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
 
 const VENDORS_FOLDER = 'vendors_dist';
+const PROCESSING_FOLDER = '__processing__';
+
 (async function () {
 
     try {
@@ -23,17 +25,17 @@ const VENDORS_FOLDER = 'vendors_dist';
             process.chdir('test/cwd');
         }
 
-        let nukJSON = {dependencies: {}}
+        let nukJSON = {
+            dependencies: {},
+            expressions: []
+        }
+
         if (await fs.pathExists('nuk.json')) {
-            nukJSON = await fs.readJson('nuk.json');
+            nukJSON = Object.assign({}, nukJSON, await fs.readJson('nuk.json'));
         }
 
         let distPackages = program.args[0] + ''.trim();
-        const cwd = process.cwd();
-
-        /*if (!distPackages) {
-            await Promise.reject(new Error('Project name is required'));
-        }*/
+        const CWD = process.cwd();
 
         distPackages = distPackages.split(' ');
         let distPackageExpression;
@@ -43,54 +45,48 @@ const VENDORS_FOLDER = 'vendors_dist';
 
             if (!distPackageExpression) continue;
 
-            // ==== STEP 1 ====
             console.log(`Try to install ${distPackageExpression}...`);
 
+            // Split expression by /
             let distPackageExpressionParts = distPackageExpression.split('/');
+
+            // Get the package name from expression
             let distPackageName = distPackageExpressionParts[0];
+
             // Remove first item.. package name
             distPackageExpressionParts.shift();
+
+            // Recompose path for getting the folder
             let packageFilesPath = distPackageExpressionParts.join('/');
 
-            //await fs.ensureDir(`${cwd}/${VENDORS_FOLDER}/__processing__`);
-
-            //let projectPath = `${cwd}/${VENDORS_FOLDER}/${distPackageName}`;
-
+            // Get tgz file using npm pack
             let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
+
+            // Remove extension tgz
             let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
 
-            await fs.move(tgzFile, `${VENDORS_FOLDER}/__processing__/${tgzFile}/${tgzFile}`, {overwrite: true});
-            await exec(`tar -xzf ${VENDORS_FOLDER}/__processing__/${tgzFile}/${tgzFile} -C ${VENDORS_FOLDER}/__processing__/${tgzFile}`);
+            // Move to processing folder
+            await fs.move(tgzFile, `${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
 
-            await fs.copy(`${VENDORS_FOLDER}/__processing__/${tgzFile}/package/${packageFilesPath}`, `${VENDORS_FOLDER}/${fileWithoutTgz}/`);
+            // Extract package
+            await exec(`tar -xzf ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
 
-            //if (isTesting) {
-                //await fs.copy('../repo/mylib', projectPath);
-            //} else {
-                // ==== STEP 2 ====
-                //await downloadRepo(REPO.APP, projectPath);
+            // Copy preselected folder to final destination
+            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/`);
 
-                // ==== STEP 3 ====
-                // change directory to project
-                //process.chdir(projectPath);
-
-                // ==== STEP 4 ====
-                // install dependencies
-                //console.log(`Installing dependencies...`);
-                //await exec(`npm install`);
-            //}
-
-            let packageVersion = fileWithoutTgz.replace(distPackageName + '-', '');
-            nukJSON.dependencies[distPackageName] = packageVersion;
+            // Add some info to nuk.json
+            if (!nukJSON.expressions.includes(distPackageExpression))
+                nukJSON.expressions.push(distPackageExpression);
+            nukJSON.dependencies[distPackageName] = fileWithoutTgz.replace(distPackageName + '-', '');
         }
 
-        // Update nuk.json
+        // Write nuk.json
         await fs.writeJson('nuk.json', nukJSON, {
             spaces: '  '
         });
 
         // Remove __processing__ folder
-        await fs.remove(`${VENDORS_FOLDER}/__processing__`);
+        await fs.remove(`${CWD}/${VENDORS_FOLDER}/__processing__`);
         console.log(chalk.greenBright('the packages are installed!'));
     } catch (e) {
         console.error(e.message);
