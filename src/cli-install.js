@@ -20,6 +20,7 @@ const PROCESSING_FOLDER = '__processing__';
         ;
 
         const isTesting = program.args.length && program.args[program.args.length - 1] === TESTING;
+        const packagesMap = {};
 
         if (isTesting) {
             console.log('testing mode...');
@@ -37,13 +38,32 @@ const PROCESSING_FOLDER = '__processing__';
 
         let distPackages = program.args[0] + ''.trim();
         const CWD = process.cwd();
+        let installAll = false;
 
-        distPackages = distPackages.split(' ');
-
+        if (distPackages) {
+            distPackages = distPackages.split(' ');
+        } else if (nukJSON.expressions.length){
+            distPackages = nukJSON.expressions;
+            installAll = true;
+        } else {
+            return;
+        }
+        //console.log(distPackages)
+        //console.log(nukJSON)
+        console.log(process.argv)
         //console.log('program.opts()', program.opts())
-        let newDestination = (program.destination || '').trim();
+
+        let totalInstallation = 0;
 
         for (let i = 0; i < distPackages.length; i++) {
+
+            if (installAll) {
+                program.parse(distPackages[i].split(' '));
+                console.log('destination', program.destination)
+                console.log(program)
+                continue;
+            }
+            let newDestination = (program.destination || '').trim();
             let distPackageExpression = distPackages[i];
 
             if (!distPackageExpression) continue;
@@ -62,17 +82,25 @@ const PROCESSING_FOLDER = '__processing__';
             // Recompose path for getting the folder
             let packageFilesPath = distPackageExpressionParts.join('/');
 
-            // Get tgz file using npm pack
-            let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
+            if (!packagesMap[distPackageName]) {
+                // Get tgz file using npm pack
+                let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
 
-            // Remove extension tgz
+                // Add package to map
+                packagesMap[distPackageName] = tgzFile;
+
+                // Remove extension tgz
+                //let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
+
+                // Move to processing folder
+                await fs.move(tgzFile, `${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
+
+                // Extract package
+                await exec(`tar -xzf ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
+            }
+
+            let tgzFile = packagesMap[distPackageName];
             let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
-
-            // Move to processing folder
-            await fs.move(tgzFile, `${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
-
-            // Extract package
-            await exec(`tar -xzf ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
 
             // Copy preselected folder to final destination
             await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/${newDestination}`);
@@ -87,6 +115,8 @@ const PROCESSING_FOLDER = '__processing__';
             }
             // Add package version
             nukJSON.dependencies[distPackageName] = fileWithoutTgz.replace(distPackageName + '-', '');
+
+            totalInstallation++;
         }
 
         // Write nuk.json
@@ -95,8 +125,11 @@ const PROCESSING_FOLDER = '__processing__';
         });
 
         // Remove __processing__ folder
-        await fs.remove(`${CWD}/${VENDORS_FOLDER}/__processing__`);
-        console.log(chalk.greenBright('the packages are installed!'));
+        await fs.remove(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}`);
+        if (totalInstallation)
+            console.log(chalk.greenBright('the packages are installed!'));
+        else
+            console.log(chalk.redBright('no packages installed!'));
     } catch (e) {
         console.error(e.message);
     }
