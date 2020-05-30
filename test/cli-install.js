@@ -7,7 +7,8 @@ describe('doz cli', function () {
     this.timeout(5000);
 
     beforeEach(function () {
-        fs.removeSync('test/cwd/my-app');
+        fs.removeSync('test/cwd/vendors');
+        fs.removeSync('test/cwd/nuk.json');
     });
 
     describe('install', function () {
@@ -17,6 +18,52 @@ describe('doz cli', function () {
                 'src/cli.js',
                 'install',
                 'doz',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install single package with version', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'doz@2.4.7',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install single package with version and determinate folder', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'doz@2.4.7/dist',
                 TESTING
             ]);
 
@@ -84,6 +131,13 @@ describe('doz cli', function () {
 
         it('install all from nuk.json', function (done) {
 
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                dependencies: [
+                    "doz@2.4.7/dist -d thedest",
+                    "doz/dist -d mydest"
+                ]
+            });
+
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
@@ -97,9 +151,42 @@ describe('doz cli', function () {
 
             cli.stderr.on('data', data => {
                 console.error(`${data}`);
-                done();
             });
 
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install all from nuk.json same package different folder to getting', function (done) {
+
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                dependencies: [
+                    "react/umd -d umd",
+                    "react/cjs -d cjs"
+                ]
+            });
+
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                '',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
         });
 
     });

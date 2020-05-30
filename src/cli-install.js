@@ -2,14 +2,12 @@
 
 const program = require('commander');
 const util = require('util');
-const downloadRepo = util.promisify(require('download-git-repo'));
-const {REPO, TESTING} = require('./constants');
+//const downloadRepo = util.promisify(require('download-git-repo'));
+const {NUK_JSON_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_ARGS, TESTING} = require('./constants');
 const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
-
-const VENDORS_FOLDER = 'vendors_dist';
-const PROCESSING_FOLDER = '__processing__';
+const matchAll = require('string.prototype.matchall');
 
 (async function () {
 
@@ -28,12 +26,11 @@ const PROCESSING_FOLDER = '__processing__';
         }
 
         let nukJSON = {
-            dependencies: {},
-            expressions: []
+            dependencies: []
         }
 
-        if (await fs.pathExists('nuk.json')) {
-            nukJSON = Object.assign({}, nukJSON, await fs.readJson('nuk.json'));
+        if (await fs.pathExists(NUK_JSON_FILENAME)) {
+            nukJSON = Object.assign({}, nukJSON, await fs.readJson(NUK_JSON_FILENAME));
         }
 
         let distPackages = program.args[0] + ''.trim();
@@ -41,56 +38,59 @@ const PROCESSING_FOLDER = '__processing__';
         let installAll = false;
 
         if (distPackages) {
+            //console.log('#1', distPackages)
             distPackages = distPackages.split(' ');
-        } else if (nukJSON.expressions.length){
-            distPackages = nukJSON.expressions;
-            installAll = true;
         } else {
-            return;
+            distPackages = Object.assign([], nukJSON.dependencies);
+            //console.log('#2', distPackages)
+            installAll = true;
         }
-        //console.log(distPackages)
-        //console.log(nukJSON)
-        console.log(process.argv)
-        //console.log('program.opts()', program.opts())
 
         let totalInstallation = 0;
 
+
         for (let i = 0; i < distPackages.length; i++) {
 
-            if (installAll) {
-                program.parse(distPackages[i].split(' '));
-                console.log('destination', program.destination)
-                console.log(program)
-                continue;
+            let distPackage = distPackages[i];
+
+            //console.log('#3', distPackages)
+
+            if (!distPackage) continue;
+
+            let destinationFolder = (program.destination || '').trim();
+            console.log(`try to install ${distPackage}...`);
+
+            // Extract packageName with a possible path
+            let distPackageMatchAll = [...matchAll(distPackage, REGEX_GET_ARGS)];
+
+            let packageNameWithPossiblePath = distPackageMatchAll[0][0];
+
+            // This works when use installation from nuk.json
+            // overwrite program.destination
+            if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
+                destinationFolder = distPackageMatchAll[1][3];
             }
-            let newDestination = (program.destination || '').trim();
-            let distPackageExpression = distPackages[i];
 
-            if (!distPackageExpression) continue;
-
-            console.log(`Try to install ${distPackageExpression}...`);
-
-            // Split expression by /
-            let distPackageExpressionParts = distPackageExpression.split('/');
+            // Split expression by / then get possible path
+            let distPackageParts = packageNameWithPossiblePath.split('/');
 
             // Get the package name from expression
-            let distPackageName = distPackageExpressionParts[0];
+            let distPackageName = distPackageParts[0];
 
             // Remove first item.. package name
-            distPackageExpressionParts.shift();
+            distPackageParts.shift();
 
             // Recompose path for getting the folder
-            let packageFilesPath = distPackageExpressionParts.join('/');
+            let packageFilesPath = distPackageParts.join('/');
 
             if (!packagesMap[distPackageName]) {
+                console.log(chalk.cyanBright(`get ${distPackageName} from npm...`));
+
                 // Get tgz file using npm pack
                 let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
 
                 // Add package to map
                 packagesMap[distPackageName] = tgzFile;
-
-                // Remove extension tgz
-                //let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
 
                 // Move to processing folder
                 await fs.move(tgzFile, `${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
@@ -103,31 +103,25 @@ const PROCESSING_FOLDER = '__processing__';
             let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
 
             // Copy preselected folder to final destination
-            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/${newDestination}`);
+            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
 
-            // Add some info to nuk.json
             // Add expression
-            if (newDestination) {
-                distPackageExpression += ' -d ' + newDestination;
+            if (!nukJSON.dependencies.includes(distPackage)) {
+                nukJSON.dependencies.push(distPackage);
             }
-            if (!nukJSON.expressions.includes(distPackageExpression)) {
-                nukJSON.expressions.push(distPackageExpression);
-            }
-            // Add package version
-            nukJSON.dependencies[distPackageName] = fileWithoutTgz.replace(distPackageName + '-', '');
 
             totalInstallation++;
         }
 
         // Write nuk.json
-        await fs.writeJson('nuk.json', nukJSON, {
+        await fs.writeJson(NUK_JSON_FILENAME, nukJSON, {
             spaces: '  '
         });
 
         // Remove __processing__ folder
         await fs.remove(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}`);
         if (totalInstallation)
-            console.log(chalk.greenBright('the packages are installed!'));
+            console.log(chalk.greenBright('complete!'));
         else
             console.log(chalk.redBright('no packages installed!'));
     } catch (e) {
