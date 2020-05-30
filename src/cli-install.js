@@ -27,7 +27,7 @@ const matchAll = require('string.prototype.matchall');
         }
 
         let nukJSON = {
-            packagesFolders: [],
+            packages: {},
             expressions: []
         }
 
@@ -55,18 +55,18 @@ const matchAll = require('string.prototype.matchall');
         try {
             for (let i = 0; i < distPackages.length; i++) {
 
-                let distPackage = distPackages[i];
+                let distPackageExpression = distPackages[i];
 
                 //console.log('#3', distPackages)
 
-                if (!distPackage) continue;
+                if (!distPackageExpression) continue;
 
-                console.log(`expression: ${distPackage}...`);
+                console.log(`expression: ${distPackageExpression}...`);
 
                 let destinationFolder = (program.destination || '').trim();
 
                 // Extract packageName with a possible path
-                let distPackageMatchAll = [...matchAll(distPackage, REGEX_GET_ARGS)];
+                let distPackageMatchAll = [...matchAll(distPackageExpression, REGEX_GET_ARGS)];
 
                 let packageNameWithPossiblePath = distPackageMatchAll[0][0];
 
@@ -111,12 +111,14 @@ const matchAll = require('string.prototype.matchall');
                 await fs.copy(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
 
                 // Add expression
-                if (!nukJSON.expressions.includes(distPackage)) {
-                    nukJSON.expressions.push(distPackage);
+                if (!nukJSON.expressions.includes(distPackageExpression)) {
+                    nukJSON.expressions.push(distPackageExpression);
                 }
 
-                if (!nukJSON.packagesFolders.includes(fileWithoutTgz)) {
-                    nukJSON.packagesFolders.push(fileWithoutTgz);
+                if (!nukJSON.packages[distPackageName]) {
+                    nukJSON.packages[distPackageName] = {
+                        folder: fileWithoutTgz
+                    }
                 }
 
                 totalInstallation++;
