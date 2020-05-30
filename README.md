@@ -23,6 +23,7 @@ $ nuk install react/umd
 ```
 
 After this a "vendors / react-x.x.x /" folder will be created with only the files of the React umd folder present in the package on npm.
+
 PS: if it doesn't already exist, a configuration file called nuk.json will be automatically created. This serves as 
 a configuration and for keeping track of installed packages too.
 
