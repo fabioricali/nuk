@@ -9,6 +9,11 @@ describe('doz cli', function () {
     beforeEach(function () {
         fs.removeSync('test/cwd/vendors');
         fs.removeSync('test/cwd/nuk.json');
+        try {
+            fs.removeSync('test/cwd/my-vendors');
+        } catch (e) {
+
+        }
     });
 
     describe('install', function () {
@@ -132,7 +137,7 @@ describe('doz cli', function () {
         it('install all from nuk.json', function (done) {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
-                dependencies: [
+                expressions: [
                     "doz@2.4.7/dist -d thedest",
                     "doz/dist -d mydest"
                 ]
@@ -162,7 +167,7 @@ describe('doz cli', function () {
         it('install all from nuk.json same package different folder to getting', function (done) {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
-                dependencies: [
+                expressions: [
                     "react/umd -d umd",
                     "react/cjs -d cjs"
                 ]
@@ -189,6 +194,35 @@ describe('doz cli', function () {
             });
         });
 
-    });
+        it('custom vendors folder', function (done) {
 
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                folderName: 'my-vendors',
+                expressions: [
+                    "react/umd -d umd",
+                    "react/cjs -d cjs"
+                ]
+            });
+
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                '',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+    });
 });

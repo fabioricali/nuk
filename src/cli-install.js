@@ -19,6 +19,7 @@ const matchAll = require('string.prototype.matchall');
 
         const isTesting = program.args.length && program.args[program.args.length - 1] === TESTING;
         const packagesMap = {};
+        let _VENDORS_FOLDER = VENDORS_FOLDER;
 
         if (isTesting) {
             console.log('testing mode...');
@@ -26,13 +27,16 @@ const matchAll = require('string.prototype.matchall');
         }
 
         let nukJSON = {
-            dependencies: []
+            packagesFolders: [],
+            expressions: []
         }
 
         if (await fs.pathExists(NUK_JSON_FILENAME)) {
             nukJSON = Object.assign({}, nukJSON, await fs.readJson(NUK_JSON_FILENAME));
         }
 
+        _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
+        
         let distPackages = program.args[0] + ''.trim();
         const CWD = process.cwd();
         let installAll = false;
@@ -41,89 +45,98 @@ const matchAll = require('string.prototype.matchall');
             //console.log('#1', distPackages)
             distPackages = distPackages.split(' ');
         } else {
-            distPackages = Object.assign([], nukJSON.dependencies);
+            distPackages = Object.assign([], nukJSON.expressions);
             //console.log('#2', distPackages)
             installAll = true;
         }
 
         let totalInstallation = 0;
 
+        try {
+            for (let i = 0; i < distPackages.length; i++) {
 
-        for (let i = 0; i < distPackages.length; i++) {
+                let distPackage = distPackages[i];
 
-            let distPackage = distPackages[i];
+                //console.log('#3', distPackages)
 
-            //console.log('#3', distPackages)
+                if (!distPackage) continue;
 
-            if (!distPackage) continue;
+                console.log(`expression: ${distPackage}...`);
 
-            let destinationFolder = (program.destination || '').trim();
-            console.log(`try to install ${distPackage}...`);
+                let destinationFolder = (program.destination || '').trim();
 
-            // Extract packageName with a possible path
-            let distPackageMatchAll = [...matchAll(distPackage, REGEX_GET_ARGS)];
+                // Extract packageName with a possible path
+                let distPackageMatchAll = [...matchAll(distPackage, REGEX_GET_ARGS)];
 
-            let packageNameWithPossiblePath = distPackageMatchAll[0][0];
+                let packageNameWithPossiblePath = distPackageMatchAll[0][0];
 
-            // This works when use installation from nuk.json
-            // overwrite program.destination
-            if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
-                destinationFolder = distPackageMatchAll[1][3];
+                // This works when use installation from nuk.json
+                // overwrite program.destination
+                if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
+                    destinationFolder = distPackageMatchAll[1][3];
+                }
+
+                // Split expression by / then get possible path
+                let distPackageParts = packageNameWithPossiblePath.split('/');
+
+                // Get the package name from expression
+                let distPackageName = distPackageParts[0];
+
+                // Remove first item.. package name
+                distPackageParts.shift();
+
+                // Recompose path for getting the folder
+                let packageFilesPath = distPackageParts.join('/');
+
+                if (!packagesMap[distPackageName]) {
+                    console.log(chalk.cyanBright(`get ${distPackageName} from npm...`));
+
+                    // Get tgz file using npm pack
+                    let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
+
+                    // Add package to map
+                    packagesMap[distPackageName] = tgzFile;
+
+                    // Move to processing folder
+                    await fs.move(tgzFile, `${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
+
+                    // Extract package
+                    await exec(`tar -xzf ${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
+                }
+
+                let tgzFile = packagesMap[distPackageName];
+                let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
+
+                // Copy preselected folder to final destination
+                await fs.copy(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+
+                // Add expression
+                if (!nukJSON.expressions.includes(distPackage)) {
+                    nukJSON.expressions.push(distPackage);
+                }
+
+                if (!nukJSON.packagesFolders.includes(fileWithoutTgz)) {
+                    nukJSON.packagesFolders.push(fileWithoutTgz);
+                }
+
+                totalInstallation++;
             }
+        } catch (e) {
+            console.error(e.message);
+        } finally {
+            // Write nuk.json
+            await fs.writeJson(NUK_JSON_FILENAME, nukJSON, {
+                spaces: '  '
+            });
 
-            // Split expression by / then get possible path
-            let distPackageParts = packageNameWithPossiblePath.split('/');
-
-            // Get the package name from expression
-            let distPackageName = distPackageParts[0];
-
-            // Remove first item.. package name
-            distPackageParts.shift();
-
-            // Recompose path for getting the folder
-            let packageFilesPath = distPackageParts.join('/');
-
-            if (!packagesMap[distPackageName]) {
-                console.log(chalk.cyanBright(`get ${distPackageName} from npm...`));
-
-                // Get tgz file using npm pack
-                let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
-
-                // Add package to map
-                packagesMap[distPackageName] = tgzFile;
-
-                // Move to processing folder
-                await fs.move(tgzFile, `${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
-
-                // Extract package
-                await exec(`tar -xzf ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
-            }
-
-            let tgzFile = packagesMap[distPackageName];
-            let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
-
-            // Copy preselected folder to final destination
-            await fs.copy(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
-
-            // Add expression
-            if (!nukJSON.dependencies.includes(distPackage)) {
-                nukJSON.dependencies.push(distPackage);
-            }
-
-            totalInstallation++;
+            // Remove __processing__ folder
+            await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}`);
+            if (totalInstallation)
+                console.log(chalk.greenBright('complete!'));
+            else
+                console.log(chalk.redBright('no packages installed!'));
         }
 
-        // Write nuk.json
-        await fs.writeJson(NUK_JSON_FILENAME, nukJSON, {
-            spaces: '  '
-        });
-
-        // Remove __processing__ folder
-        await fs.remove(`${CWD}/${VENDORS_FOLDER}/${PROCESSING_FOLDER}`);
-        if (totalInstallation)
-            console.log(chalk.greenBright('complete!'));
-        else
-            console.log(chalk.redBright('no packages installed!'));
     } catch (e) {
         console.error(e.message);
     }
