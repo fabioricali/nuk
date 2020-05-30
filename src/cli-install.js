@@ -8,7 +8,7 @@ const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
 const matchAll = require('string.prototype.matchall');
-//const path = require('path');
+const path = require('path');
 const decompress = require('decompress');
 const decompressTargz = require('decompress-targz');
 
@@ -39,15 +39,15 @@ const decompressTargz = require('decompress-targz');
         }
 
         _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
-        
-        let distPackages = program.args[0] + ''.trim();
+
+        //console.log('--------->', program.args)
+        //console.log('--------->', program.destination)
+
+        let distPackages = program.args.filter(item => item !== TESTING);
         const CWD = process.cwd();
         let installAll = false;
 
-        if (distPackages) {
-            //console.log('#1', distPackages)
-            distPackages = distPackages.split(' ');
-        } else {
+        if (!distPackages.length) {
             distPackages = Object.assign([], nukJSON.expressions);
             //console.log('#2', distPackages)
             installAll = true;
@@ -104,7 +104,6 @@ const decompressTargz = require('decompress-targz');
                     await fs.move(tgzFile, `${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
 
                     // Extract package
-                    //await exec(`tar --force-local -xzf "${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}" -C "${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}"`);
                     await decompress(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, `${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`, {
                         plugins: [
                             decompressTargz()
@@ -115,8 +114,14 @@ const decompressTargz = require('decompress-targz');
                 let tgzFile = packagesMap[distPackageName];
                 let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
 
+                let copyFrom = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`);
+                let statCopyFrom = await fs.lstat(copyFrom);
+                if (statCopyFrom.isFile())
+                    destinationFolder += '/' + packageFilesPath;
+                let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+
                 // Copy preselected folder to final destination
-                await fs.copy(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`, `${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+                await fs.copy(copyFrom, copyTo);
 
                 // Add expression
                 if (!nukJSON.expressions.includes(distPackageExpression)) {

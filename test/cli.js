@@ -91,7 +91,76 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/cli.js',
                 'install',
-                'doz/dist react/umd',
+                'doz/dist', 'react/umd',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install multiple file same package', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'swiper/js/swiper.min.js', 'swiper/css',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install multiple file same package 2', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'swiper/js/swiper.min.js', 'swiper/css/swiper.min.css',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
+        it('install multiple file same package 3', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'swiper/js/swiper.min.js -d myjs', 'swiper/css/swiper.min.css -d mycss',
                 TESTING
             ]);
 
