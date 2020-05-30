@@ -1,7 +1,7 @@
 {
   "name": "nuk",
   "version": "0.0.0",
-  "description": "A package manager for dist only",
+  "description": "A package manager that installs only what you need.",
   "main": "index.js",
   "bin": {
     "nuk": "./src/cli.js"
