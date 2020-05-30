@@ -1,9 +1,46 @@
-# nuk
-A package manager for dist folder only:
+# 💣nuk
+A package manager that installs only what you need.
+
+## Motivation
+It often happens to add resources hosted on CDN to websites or web applications. CDNs, I know, are very convenient and 
+quick to include a lib. But how safe is it to do it? How many times does it happen that these are unreachable 
+for traffic reasons? For example, it happens to me with unkpg.com. Get the files from the node_modules folder? No! 
+it is not done. Too big. So I thought of creating a simple package manager (I don't know if I can call it that) that 
+simply downloads the resources you want in a folder.
+
+***The files should be kept "local". But if you have your own CDN, even better.*** 😎
 
 ## Install
 ```
 $ npm install -g nuk
+```
+
+## Usage
+
+Do you need to install only the UMD version of React?
+```
+$ nuk install react/umd
+```
+
+After this a "vendors / react-x.x.x /" folder will be created with only the files of the React umd folder present in the package on npm.
+PS: if it doesn't already exist, a configuration file called nuk.json will be automatically created. This serves as 
+a configuration and for keeping track of installed packages too.
+
+You can also install multiple packages
+```
+$ nuk install react/umd doz/dist
+```
+
+Do you need to uninstall?
+```
+$ nuk uinstall react
+```
+
+if you need to change the name of the vendors folder then add this property to the nuk.json file:
+```json
+{
+  "folderName": "my-vendors"
+}
 ```
 
 ## Changelog

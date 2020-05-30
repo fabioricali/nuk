@@ -2,7 +2,7 @@ const {spawn} = require('child_process');
 const {TESTING} = require('../src/constants');
 const fs = require('fs-extra');
 
-describe('doz cli', function () {
+describe('nuk', function () {
 
     this.timeout(5000);
 
@@ -222,6 +222,110 @@ describe('doz cli', function () {
             cli.on('close', code => {
                 console.log(`child process exited with code ${code}`);
                 done()
+            });
+        });
+    });
+
+    describe('uninstall', function () {
+        it('uninstall react', function (done) {
+
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                expressions: [
+                    "doz@2.4.7/dist -d thedest",
+                    "doz/dist -d mydest",
+                    "react/umd -d umd",
+                    "react/cjs -d cjs"
+                ]
+            });
+
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                '',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+
+                const cli2 = spawn('node', [
+                    'src/cli.js',
+                    'uninstall',
+                    'react',
+                    TESTING
+                ]);
+
+                cli2.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli2.stderr.on('data', data => {
+                    console.error(`${data}`);
+                });
+
+                cli2.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    done()
+                });
+            });
+        });
+
+        it('uninstall empty name', function (done) {
+
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                expressions: [
+                    "doz@2.4.7/dist -d thedest",
+                    "doz/dist -d mydest",
+                    "react/umd -d umd",
+                    "react/cjs -d cjs"
+                ]
+            });
+
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                '',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+
+                const cli2 = spawn('node', [
+                    'src/cli.js',
+                    'uninstall',
+                    '',
+                    TESTING
+                ]);
+
+                cli2.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli2.stderr.on('data', data => {
+                    console.error(`${data}`);
+                });
+
+                cli2.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    done()
+                });
             });
         });
     });

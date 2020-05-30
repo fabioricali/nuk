@@ -14,6 +14,7 @@ console.log(
 program
     .version(version)
     .command('install <name>', 'install dist package')
+    .command('uninstall <name>', 'uninstall dist package')
     .parse(process.argv)
 ;
 //console.log(`cheese: ${program.destination}`);

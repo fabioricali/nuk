@@ -8,6 +8,9 @@ const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
 const matchAll = require('string.prototype.matchall');
+//const path = require('path');
+const decompress = require('decompress');
+const decompressTargz = require('decompress-targz');
 
 (async function () {
 
@@ -27,8 +30,8 @@ const matchAll = require('string.prototype.matchall');
         }
 
         let nukJSON = {
-            packages: {},
-            expressions: []
+            expressions: [],
+            packages: {}
         }
 
         if (await fs.pathExists(NUK_JSON_FILENAME)) {
@@ -101,7 +104,12 @@ const matchAll = require('string.prototype.matchall');
                     await fs.move(tgzFile, `${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, {overwrite: true});
 
                     // Extract package
-                    await exec(`tar -xzf ${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile} -C ${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`);
+                    //await exec(`tar --force-local -xzf "${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}" -C "${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}"`);
+                    await decompress(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/${tgzFile}`, `${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}`, {
+                        plugins: [
+                            decompressTargz()
+                        ]
+                    });
                 }
 
                 let tgzFile = packagesMap[distPackageName];
@@ -117,8 +125,18 @@ const matchAll = require('string.prototype.matchall');
 
                 if (!nukJSON.packages[distPackageName]) {
                     nukJSON.packages[distPackageName] = {
-                        folder: fileWithoutTgz
+                        folder: fileWithoutTgz,
+                        paths: [],
+                        expressions: []
                     }
+                }
+
+                if (destinationFolder && !nukJSON.packages[distPackageName].paths.includes(destinationFolder)) {
+                    nukJSON.packages[distPackageName].paths.push(destinationFolder);
+                }
+
+                if (!nukJSON.packages[distPackageName].expressions.includes(distPackageExpression)) {
+                    nukJSON.packages[distPackageName].expressions.push(distPackageExpression);
                 }
 
                 totalInstallation++;
