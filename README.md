@@ -10,7 +10,7 @@ simply downloads the resources you want in a folder.
 
 ***The files should be kept "local". But if you have your own CDN, even better.*** 😎
 
-## Install
+## Installation
 ```
 $ npm install -g nuk
 ```
@@ -33,7 +33,7 @@ $ nuk install react/umd doz/dist
 
 Do you need to uninstall?
 ```
-$ nuk uinstall react
+$ nuk uninstall react
 ```
 
 if you need to change the name of the vendors folder then add this property to the nuk.json file:
