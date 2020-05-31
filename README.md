@@ -31,6 +31,11 @@ You can also install multiple packages
 ```
 $ nuk install react/umd doz/dist
 ```
+Obviously you can install the version you want:
+
+```
+$ nuk install react@16.12.0/umd
+```
 
 If you want to know quickly which files you can include in a given package then you can use "list":
 ```
