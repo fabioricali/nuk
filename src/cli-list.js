@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const program = require('commander');
-const {NUK_JSON_FILENAME, VENDORS_FOLDER, TESTING} = require('./constants');
+const request = require('axios');
+const {NUK_JSON_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_ARGS, TESTING} = require('./constants');
 const chalk = require('chalk');
 const fs = require('fs-extra');
 
@@ -31,10 +32,10 @@ const fs = require('fs-extra');
 
         _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
         
-        let distPackages = program.args[0] + ''.trim();
+        let distPackages = program.args;//[0] + ''.trim();
         const CWD = process.cwd();
 
-        distPackages = distPackages.split(' ');
+        //distPackages = distPackages.split(' ');
 
         let totalOperation = 0;
 

@@ -40,16 +40,14 @@ const decompressTargz = require('decompress-targz');
 
         _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
 
-        //console.log('--------->', program.args)
-        //console.log('--------->', program.destination)
-
-        let distPackages = program.args.filter(item => item !== TESTING);
+        let distPackages = program.args.filter(item => ![TESTING, ''].includes(item));
         const CWD = process.cwd();
         let installAll = false;
 
+        //console.log(program.args)
+
         if (!distPackages.length) {
             distPackages = Object.assign([], nukJSON.expressions);
-            //console.log('#2', distPackages)
             installAll = true;
         }
 
@@ -59,8 +57,6 @@ const decompressTargz = require('decompress-targz');
             for (let i = 0; i < distPackages.length; i++) {
 
                 let distPackageExpression = distPackages[i];
-
-                //console.log('#3', distPackages)
 
                 if (!distPackageExpression) continue;
 

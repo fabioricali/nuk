@@ -15,6 +15,7 @@ program
     .version(version)
     .command('install <name>', 'install dist package')
     .command('uninstall <name>', 'uninstall dist package')
+    .command('list <name>', 'files list of package')
     .parse(process.argv)
 ;
 //console.log(`cheese: ${program.destination}`);
