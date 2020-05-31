@@ -398,4 +398,30 @@ describe('nuk', function () {
             });
         });
     });
+
+    describe('list', function () {
+        it('retrieve a package', function (done) {
+
+
+            const cli = spawn('node', [
+                'src/cli.js',
+                'list',
+                'react',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+    });
 });

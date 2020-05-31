@@ -22,7 +22,7 @@ Do you need to install only the UMD version of React?
 $ nuk install react/umd
 ```
 
-After this a "vendors / react-x.x.x /" folder will be created with only the files of the React umd folder present in the package on npm.
+After this a `vendors/react-x.x.x/` folder will be created with only the files of the React umd folder present in the package on npm.
 
 PS: if it doesn't already exist, a configuration file called nuk.json will be automatically created. This serves as 
 a configuration and for keeping track of installed packages too.
@@ -30,6 +30,24 @@ a configuration and for keeping track of installed packages too.
 You can also install multiple packages
 ```
 $ nuk install react/umd doz/dist
+```
+
+If you want to know quickly which files you can include in a given package then you can use "list":
+```
+$ nuk list react
+```
+You will receive an output like this
+
+```
+nuk install react/cjs
+nuk install react/cjs/react.development.js
+nuk install react/cjs/react.production.min.js
+nuk install react/index.js
+nuk install react/index.min.js
+nuk install react/umd
+nuk install react/umd/react.development.js
+nuk install react/umd/react.production.min.js
+nuk install react/umd/react.profiling.min.js
 ```
 
 Do you need to uninstall?
