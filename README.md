@@ -31,8 +31,8 @@ You can also install multiple packages
 ```
 $ nuk install react/umd doz/dist
 ```
-Obviously you can install the version you want:
 
+Obviously you can install the version you want:
 ```
 $ nuk install react@16.12.0/umd
 ```
@@ -41,8 +41,8 @@ If you want to know quickly which files you can include in a given package then 
 ```
 $ nuk list react
 ```
-You will receive an output like this
 
+You will receive an output like this:
 ```
 nuk install react/cjs
 nuk install react/cjs/react.development.js
