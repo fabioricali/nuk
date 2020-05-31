@@ -9,16 +9,21 @@ const chalk = require('chalk');
     const output = [];
     let packageName;
 
+    function addFile(file) {
+        if (!output.includes(file))
+            output.push(file);
+    }
+
     function iterateFilesList(files, path = '') {
         files.forEach(file => {
             if (file.type === 'directory') {
                 iterateFilesList(file.files, path + '/' + file.name);
                 if (path === '') {
-                    output.push(packageName + '/' + file.name);
+                    addFile(packageName + '/' + file.name);
                 }
             } else {
                 if (!EXCLUDE_FILES.includes(file.name.toLowerCase()))
-                    output.push(packageName + path + '/' + file.name);
+                    addFile(packageName + path + '/' + file.name);
             }
         })
     }
@@ -36,7 +41,7 @@ const chalk = require('chalk');
         }
 
         if (response.data.default) {
-            output.push(packageName + response.data.default);
+            addFile(packageName + response.data.default);
         }
 
         iterateFilesList(response.data.files);

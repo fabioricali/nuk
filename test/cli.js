@@ -406,7 +406,7 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/cli.js',
                 'list',
-                'react',
+                'doz',
                 TESTING
             ]);
 
