@@ -4,7 +4,7 @@
   "description": "A package manager that installs only what you need.",
   "main": "index.js",
   "bin": {
-    "nuk": "./src/cli.js"
+    "nuk": "src/nuk.js"
   },
   "scripts": {
     "version:major": "npm version major",

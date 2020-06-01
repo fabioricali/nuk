@@ -21,7 +21,7 @@ describe('nuk', function () {
 
         it('install single package', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'doz',
                 TESTING
@@ -44,7 +44,7 @@ describe('nuk', function () {
 
         it('install single package with version', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'doz@2.4.7',
                 TESTING
@@ -67,7 +67,7 @@ describe('nuk', function () {
 
         it('install single package with version and determinate folder', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'doz@2.4.7/dist',
                 TESTING
@@ -90,7 +90,7 @@ describe('nuk', function () {
 
         it('install multiple dist', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'doz/dist', 'react/umd',
                 TESTING
@@ -113,7 +113,7 @@ describe('nuk', function () {
 
         it('install multiple file same package', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js', 'swiper/css',
                 TESTING
@@ -136,7 +136,7 @@ describe('nuk', function () {
 
         it('install multiple file same package 2', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js', 'swiper/css/swiper.min.css',
                 TESTING
@@ -159,7 +159,7 @@ describe('nuk', function () {
 
         it('install multiple file same package 3', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js -d myjs', 'swiper/css/swiper.min.css -d mycss',
                 TESTING
@@ -182,7 +182,7 @@ describe('nuk', function () {
 
         it('install single package with destination folder', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'doz',
                 '-d mydist',
@@ -214,7 +214,7 @@ describe('nuk', function () {
             });
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 '',
                 TESTING
@@ -244,7 +244,7 @@ describe('nuk', function () {
             });
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 '',
                 TESTING
@@ -275,7 +275,7 @@ describe('nuk', function () {
             });
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 '',
                 TESTING
@@ -309,7 +309,7 @@ describe('nuk', function () {
             });
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 '',
                 TESTING
@@ -327,7 +327,7 @@ describe('nuk', function () {
                 console.log(`child process exited with code ${code}`);
 
                 const cli2 = spawn('node', [
-                    'src/cli.js',
+                    'src/nuk.js',
                     'uninstall',
                     'react',
                     TESTING
@@ -360,7 +360,7 @@ describe('nuk', function () {
             });
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 '',
                 TESTING
@@ -378,7 +378,7 @@ describe('nuk', function () {
                 console.log(`child process exited with code ${code}`);
 
                 const cli2 = spawn('node', [
-                    'src/cli.js',
+                    'src/nuk.js',
                     'uninstall',
                     '',
                     TESTING
@@ -405,7 +405,7 @@ describe('nuk', function () {
 
 
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'list',
                 'doz',
                 TESTING
@@ -429,7 +429,7 @@ describe('nuk', function () {
     describe('bundle', function () {
         it('create bundle files', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
@@ -450,7 +450,7 @@ describe('nuk', function () {
             cli.on('close', code => {
                 console.log(`child process exited with code ${code}`);
                 const cli2 = spawn('node', [
-                    'src/cli.js',
+                    'src/nuk.js',
                     'bundle',
                     TESTING
                 ]);
@@ -471,7 +471,7 @@ describe('nuk', function () {
         });
         it('create bundle files with bundleFiles', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
@@ -501,7 +501,7 @@ describe('nuk', function () {
                 fs.writeJsonSync('test/cwd/nuk.json', nukJSON);
 
                 const cli2 = spawn('node', [
-                    'src/cli.js',
+                    'src/nuk.js',
                     'bundle',
                     TESTING
                 ]);
@@ -523,7 +523,7 @@ describe('nuk', function () {
 
         it('create bundle files with bundleFiles but different bundles', function (done) {
             const cli = spawn('node', [
-                'src/cli.js',
+                'src/nuk.js',
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
@@ -558,7 +558,7 @@ describe('nuk', function () {
                 fs.writeJsonSync('test/cwd/nuk.json', nukJSON);
 
                 const cli2 = spawn('node', [
-                    'src/cli.js',
+                    'src/nuk.js',
                     'bundle',
                     TESTING
                 ]);
