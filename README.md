@@ -36,7 +36,7 @@ You can also install multiple packages
 $ nuk install react/umd doz/dist
 ```
 
-Obviously you can install the version you want:
+Obviously you can install the version you want (**recommended**):
 ```
 $ nuk install react@16.12.0/umd
 ```
@@ -87,6 +87,26 @@ So, you can include just this:
 <script src="vendors/bundle.js"></script>
 <link href="vendors/bundle.css" rel="stylesheet" type="text/css">
 ```
+
+if you need to diversify the bundles you can then do so:
+```json
+{
+    "bundleFiles": {
+        "bundle1": [
+            "swiper-5.4.1/swiper.min.css",
+            "react-16.13.1/umd/react.production.min.js"
+        ],
+        "bundle2": [
+            "react-16.13.1/umd/react.profiling.min.js"
+        ]
+    }
+}
+```
+
+In this case it will provide three files:
+- vendors/bundle1.js
+- vendors/bundle1.css
+- vendors/bundle2.js
 
 Do you need to uninstall?
 ```

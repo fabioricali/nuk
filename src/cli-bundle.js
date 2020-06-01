@@ -22,6 +22,8 @@ const fs = require('fs-extra');
     const CWD = process.cwd();
 
     let nukJSON;
+    //let bundleName = 'bundle';
+
     if (await fs.pathExists(NUK_JSON_FILENAME)) {
         nukJSON = await fs.readJson(NUK_JSON_FILENAME);
     } else {
@@ -31,43 +33,70 @@ const fs = require('fs-extra');
     try {
 
         let files;
-        let filesJS = [];
-        let filesCSS = [];
+        //let filesJS = [];
+        //let filesCSS = [];
+        let bundleOperation = {
+            bundle: []
+        };
+        let bundleOperationMap = {};
 
-        if (nukJSON.bundleFiles) {
+        if (Array.isArray(nukJSON.bundleFiles)) {
             files = nukJSON.bundleFiles;
             console.log(chalk.cyanBright('bundleFiles from nuk.json'));
             console.log(chalk.greenBright(files.join('\n')));
+
+            bundleOperation.bundle = files;
+        } else if (nukJSON.bundleFiles && typeof nukJSON.bundleFiles === 'object'){
+            bundleOperation = nukJSON.bundleFiles;
         } else {
             files = await readdirp.promise(CWD + '/' + VENDORS_FOLDER);
             files = files.map(file => file.path);
             files.filter(file => {
-                    let re = /.*\.min\.(js|css)/.test(file);
-                    if (re) {
-                        console.log(chalk.greenBright(file, 'included'));
-                    } else {
-                        console.log(chalk.redBright(file, 'not included'));
-                    }
+                let re = /.*\.min\.(js|css)/.test(file);
+                if (re) {
+                    console.log(chalk.greenBright(file, 'included'));
+                } else {
+                    console.log(chalk.redBright(file, 'not included'));
+                }
+                return re;
+            });
 
-                    return re;
-                })
-            ;
+            bundleOperation.bundle = files;
         }
 
-        for (let i = 0; i < files.length; i++) {
-            if (path.extname(files[i]) === '.css') {
-                filesCSS.push(path.normalize(CWD + '/' + VENDORS_FOLDER + '/' + files[i]));
-            } else if (path.extname(files[i]) === '.js') {
-                filesJS.push(path.normalize(CWD + '/' + VENDORS_FOLDER + '/' + files[i]));
+        let bundleNames = Object.keys(bundleOperation);
+
+        for (let y = 0; y < bundleNames.length; y++) {
+            let bundleName = bundleNames[y];
+
+            for (let i = 0; i < bundleOperation[bundleName].length; i++) {
+                if (!bundleOperationMap[bundleName]) {
+                    bundleOperationMap[bundleName] = {
+                        filesJS: [],
+                        filesCSS: []
+                    }
+                }
+                if (path.extname(bundleOperation[bundleName][i]) === '.css') {
+                    bundleOperationMap[bundleName].filesCSS.push(path.normalize(CWD + '/' + VENDORS_FOLDER + '/' + bundleOperation[bundleName][i]));
+                } else if (path.extname(bundleOperation[bundleName][i]) === '.js') {
+                    bundleOperationMap[bundleName].filesJS.push(path.normalize(CWD + '/' + VENDORS_FOLDER + '/' + bundleOperation[bundleName][i]));
+                }
             }
         }
+        let bundleNamesMap = Object.keys(bundleOperationMap);
 
-        await concat(filesJS, CWD + '/' + VENDORS_FOLDER + '/' + 'bundle.js');
-        let contentFileJS = await fs.readFile(CWD + '/' + VENDORS_FOLDER + '/' + 'bundle.js');
-        contentFileJS = contentFileJS.toString().replace(/\/\/# sourceMappingURL/g, '//# sourceMappingURL_DISABLED_');
-        await fs.writeFile(CWD + '/' + VENDORS_FOLDER + '/' + 'bundle.js', contentFileJS);
+        for (let y = 0; y < bundleNamesMap.length; y++) {
+            let bundleName = bundleNamesMap[y];
+            if (bundleOperationMap[bundleName].filesJS.length) {
+                await concat(bundleOperationMap[bundleName].filesJS, CWD + '/' + VENDORS_FOLDER + '/' + bundleName + '.js');
+                let contentFileJS = await fs.readFile(CWD + '/' + VENDORS_FOLDER + '/' + bundleName + '.js');
+                contentFileJS = contentFileJS.toString().replace(/\/\/# sourceMappingURL/g, '//# sourceMappingURL_DISABLED_');
+                await fs.writeFile(CWD + '/' + VENDORS_FOLDER + '/' + bundleName + '.js', contentFileJS);
+            }
 
-        await concat(filesCSS, CWD + '/' + VENDORS_FOLDER + '/' + 'bundle.css');
+            if (bundleOperationMap[bundleName].filesCSS.length)
+                await concat(bundleOperationMap[bundleName].filesCSS, CWD + '/' + VENDORS_FOLDER + '/' + bundleName + '.css');
+        }
 
     } catch (e) {
         console.error(e.message);
