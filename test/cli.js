@@ -424,4 +424,51 @@ describe('nuk', function () {
             });
         });
     });
+
+    describe('bundle', function () {
+        it('create bundle files', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'swiper/js/swiper.min.js',
+                'swiper/css',
+                "react/umd -d umd",
+                "react/cjs -d cjs",
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                const cli2 = spawn('node', [
+                    'src/cli.js',
+                    'bundle',
+                    TESTING
+                ]);
+
+                cli2.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli2.stderr.on('data', data => {
+                    console.error(`${data}`);
+                });
+
+                cli2.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    done()
+                });
+            });
+
+
+        });
+    });
 });

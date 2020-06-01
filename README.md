@@ -23,6 +23,10 @@ $ nuk install react/umd
 ```
 
 After this a `vendors/react-x.x.x/` folder will be created with only the files of the React umd folder present in the package on npm.
+Now, you can include your file:
+```html
+<script src="vendors/react-x.x.x/umd/react.production.min.js"></script>
+```
 
 PS: if it doesn't already exist, a configuration file called nuk.json will be automatically created. This serves as 
 a configuration and for keeping track of installed packages too.
@@ -53,6 +57,23 @@ nuk install react/umd
 nuk install react/umd/react.development.js
 nuk install react/umd/react.production.min.js
 nuk install react/umd/react.profiling.min.js
+```
+
+I understand that inserting so many scripts into your html page could be tiring. So nuk gives you another command called 
+"bundle". This command will only take minified files that conventionally have "min." in the file name and will concatenate 
+them into one file bundle.js and bundle.css. It does nothing else. There is no rule for the order of file concatenation. 
+**It is not a real bundler**. The files will be created inside the "vendors" folder.
+```
+$ nuk bundle
+```
+
+It will provide two files:
+- vendors/bundle.js
+- vendors/bundle.css
+So, you can include just this:
+```html
+<script src="vendors/bundle.js"></script>
+<link href="vendors/bundle.css" rel="stylesheet" type="text/css">
 ```
 
 Do you need to uninstall?

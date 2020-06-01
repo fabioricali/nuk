@@ -16,6 +16,7 @@ program
     .command('install <name>', 'install dist package')
     .command('uninstall <name>', 'uninstall dist package')
     .command('list <name>', 'files list of package')
+    .command('bundle', 'create unique bundle file')
     .parse(process.argv)
 ;
 //console.log(`cheese: ${program.destination}`);
