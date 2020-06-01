@@ -70,6 +70,7 @@ $ nuk bundle
 It will provide two files:
 - vendors/bundle.js
 - vendors/bundle.css
+
 So, you can include just this:
 ```html
 <script src="vendors/bundle.js"></script>
