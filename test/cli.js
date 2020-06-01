@@ -9,6 +9,7 @@ describe('nuk', function () {
     beforeEach(function () {
         fs.removeSync('test/cwd/vendors');
         fs.removeSync('test/cwd/nuk.json');
+        fs.removeSync('test/cwd/nuk-lock.json');
         try {
             fs.removeSync('test/cwd/my-vendors');
         } catch (e) {

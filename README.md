@@ -28,8 +28,10 @@ Now, you can include your file:
 <script src="vendors/react-x.x.x/umd/react.production.min.js"></script>
 ```
 
-PS: if it doesn't already exist, a configuration file called nuk.json will be automatically created. This serves as 
-a configuration and for keeping track of installed packages too.
+PS: if it doesn't already exist, a configuration file called `nuk.json` will be automatically created. This serves as 
+a configuration.
+
+**Please don't remove** `nuk-lock.json` useful for keeping track of installed packages.
 
 You can also install multiple packages
 ```

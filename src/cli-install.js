@@ -3,7 +3,7 @@
 const program = require('commander');
 const util = require('util');
 //const downloadRepo = util.promisify(require('download-git-repo'));
-const {NUK_JSON_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_ARGS, TESTING} = require('./constants');
+const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_ARGS, TESTING} = require('./constants');
 const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
@@ -30,12 +30,19 @@ const decompressTargz = require('decompress-targz');
         }
 
         let nukJSON = {
-            expressions: [],
+            expressions: []
+        }
+
+        let nukJSONLock = {
             packages: {}
         }
 
         if (await fs.pathExists(NUK_JSON_FILENAME)) {
             nukJSON = Object.assign({}, nukJSON, await fs.readJson(NUK_JSON_FILENAME));
+        }
+
+        if (await fs.pathExists(NUK_JSON_LOCK_FILENAME)) {
+            nukJSONLock = Object.assign({}, nukJSONLock, await fs.readJson(NUK_JSON_LOCK_FILENAME));
         }
 
         _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
@@ -124,20 +131,20 @@ const decompressTargz = require('decompress-targz');
                     nukJSON.expressions.push(distPackageExpression);
                 }
 
-                if (!nukJSON.packages[distPackageName]) {
-                    nukJSON.packages[distPackageName] = {
+                if (!nukJSONLock.packages[distPackageName]) {
+                    nukJSONLock.packages[distPackageName] = {
                         folder: fileWithoutTgz,
                         paths: [],
                         expressions: []
                     }
                 }
 
-                if (destinationFolder && !nukJSON.packages[distPackageName].paths.includes(destinationFolder)) {
-                    nukJSON.packages[distPackageName].paths.push(destinationFolder);
+                if (destinationFolder && !nukJSONLock.packages[distPackageName].paths.includes(destinationFolder)) {
+                    nukJSONLock.packages[distPackageName].paths.push(destinationFolder);
                 }
 
-                if (!nukJSON.packages[distPackageName].expressions.includes(distPackageExpression)) {
-                    nukJSON.packages[distPackageName].expressions.push(distPackageExpression);
+                if (!nukJSONLock.packages[distPackageName].expressions.includes(distPackageExpression)) {
+                    nukJSONLock.packages[distPackageName].expressions.push(distPackageExpression);
                 }
 
                 totalInstallation++;
@@ -147,6 +154,10 @@ const decompressTargz = require('decompress-targz');
         } finally {
             // Write nuk.json
             await fs.writeJson(NUK_JSON_FILENAME, nukJSON, {
+                spaces: '  '
+            });
+            // Write nuk-lock.json
+            await fs.writeJson(NUK_JSON_LOCK_FILENAME, nukJSONLock, {
                 spaces: '  '
             });
 
