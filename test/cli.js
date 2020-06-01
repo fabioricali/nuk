@@ -467,8 +467,57 @@ describe('nuk', function () {
                     done()
                 });
             });
+        });
+        it('create bundle files with bundleFiles', function (done) {
+            const cli = spawn('node', [
+                'src/cli.js',
+                'install',
+                'swiper/js/swiper.min.js',
+                'swiper/css',
+                "react/umd -d umd",
+                "react/cjs -d cjs",
+                TESTING
+            ]);
 
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
 
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+
+                let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
+                nukJSON.bundleFiles = [
+                    'swiper-5.4.1/swiper.min.css',
+                    'react-16.13.1/umd/react.production.min.js'
+                ];
+
+                fs.writeJsonSync('test/cwd/nuk.json', nukJSON);
+
+                const cli2 = spawn('node', [
+                    'src/cli.js',
+                    'bundle',
+                    TESTING
+                ]);
+
+                cli2.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli2.stderr.on('data', data => {
+                    console.error(`${data}`);
+                });
+
+                cli2.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    done()
+                });
+            });
         });
     });
 });

@@ -61,10 +61,21 @@ nuk install react/umd/react.profiling.min.js
 
 I understand that inserting so many scripts into your html page could be tiring. So nuk gives you another command called 
 "bundle". This command will only take minified files that conventionally have "min." in the file name and will concatenate 
-them into one file bundle.js and bundle.css. It does nothing else. There is no rule for the order of file concatenation. 
+them into one file bundle.js and bundle.css. It does nothing else. 
 **It is not a real bundler**. The files will be created inside the "vendors" folder.
 ```
 $ nuk bundle
+```
+
+if you need to exclude certain files or change the order in which nuk generates the bundle then you can add 
+the "bundleFiles" property to your nuk.json:
+```json
+{
+  "bundleFiles": [
+    "swiper-5.4.1/swiper.min.css",
+    "react-16.13.1/umd/react.production.min.js"  
+  ]
+}
 ```
 
 It will provide two files:
