@@ -25,7 +25,7 @@ $ nuk install react/umd
 After this a `vendors/react-x.x.x/` folder will be created with only the files of the React umd folder present in the package on npm.
 Now, you can include your file:
 ```html
-<script src="vendors/react-x.x.x/umd/react.production.min.js"></script>
+<script src="vendors/react-x.x.x/react.production.min.js"></script>
 ```
 
 PS: if it doesn't already exist, a configuration file called `nuk.json` will be automatically created. This serves as 
