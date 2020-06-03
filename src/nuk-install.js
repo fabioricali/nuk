@@ -3,11 +3,11 @@
 const program = require('commander');
 const util = require('util');
 //const downloadRepo = util.promisify(require('download-git-repo'));
-const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_ARGS, TESTING} = require('./constants');
+const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, /*REGEX_GET_ARGS, */TESTING} = require('./constants');
 const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
-const matchAll = require('string.prototype.matchall');
+//const matchAll = require('string.prototype.matchall');
 const path = require('path');
 const decompress = require('decompress');
 const decompressTargz = require('decompress-targz');
@@ -16,7 +16,7 @@ const decompressTargz = require('decompress-targz');
 
     try {
         program
-            .option('-d, --destination <value>', 'destination folder')
+            //.option('-d, --destination <value>', 'destination folder')
             .parse(process.argv)
         ;
 
@@ -69,21 +69,22 @@ const decompressTargz = require('decompress-targz');
 
                 console.log(`expression: ${distPackageExpression}...`);
 
-                let destinationFolder = (program.destination || '').trim();
+                //let destinationFolder = (program.destination || '').trim();
 
                 // Extract packageName with a possible path
-                let distPackageMatchAll = [...matchAll(distPackageExpression, REGEX_GET_ARGS)];
+                //let distPackageMatchAll = [...matchAll(distPackageExpression, REGEX_GET_ARGS)];
 
-                let packageNameWithPossiblePath = distPackageMatchAll[0][0];
+                //let packageNameWithPossiblePath = distPackageMatchAll[0][0];
 
                 // This works when use installation from nuk.json
                 // overwrite program.destination
-                if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
+                /*if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
                     destinationFolder = distPackageMatchAll[1][3];
-                }
+                }*/
 
                 // Split expression by / then get possible path
-                let distPackageParts = packageNameWithPossiblePath.split('/');
+                //let distPackageParts = packageNameWithPossiblePath.split('/');
+                let distPackageParts = distPackageExpression.split('/');
 
                 // Get the package name from expression
                 let distPackageName = distPackageParts[0];
@@ -118,10 +119,13 @@ const decompressTargz = require('decompress-targz');
                 let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
 
                 let copyFrom = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`);
-                let statCopyFrom = await fs.lstat(copyFrom);
-                if (statCopyFrom.isFile())
-                    destinationFolder += '/' + packageFilesPath;
-                let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+                //console.log('copyFrom', copyFrom);
+                //let statCopyFrom = await fs.lstat(copyFrom);
+                //if (statCopyFrom.isFile())
+                    //destinationFolder += '/' + packageFilesPath;
+                    //destinationFolder += '/' + packageFilesPath;
+                //let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+                let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${packageFilesPath}`);
 
                 // Copy preselected folder to final destination
                 await fs.copy(copyFrom, copyTo);
@@ -139,8 +143,12 @@ const decompressTargz = require('decompress-targz');
                     }
                 }
 
-                if (destinationFolder && !nukJSONLock.packages[distPackageName].paths.includes(destinationFolder)) {
+                /*if (destinationFolder && !nukJSONLock.packages[distPackageName].paths.includes(destinationFolder)) {
                     nukJSONLock.packages[distPackageName].paths.push(destinationFolder);
+                }*/
+
+                if (packageFilesPath && !nukJSONLock.packages[distPackageName].paths.includes(packageFilesPath)) {
+                    nukJSONLock.packages[distPackageName].paths.push(packageFilesPath);
                 }
 
                 if (!nukJSONLock.packages[distPackageName].expressions.includes(distPackageExpression)) {

@@ -157,7 +157,7 @@ describe('nuk', function () {
             });
         });
 
-        it('install multiple file same package 3', function (done) {
+        it.skip('install multiple file same package 3', function (done) {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
@@ -180,7 +180,7 @@ describe('nuk', function () {
             });
         });
 
-        it('install single package with destination folder', function (done) {
+        it.skip('install single package with destination folder', function (done) {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
@@ -208,8 +208,8 @@ describe('nuk', function () {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
                 expressions: [
-                    "doz@2.4.7/dist -d thedest",
-                    "doz/dist -d mydest"
+                    "doz@2.4.7/dist",
+                    "doz/dist"
                 ]
             });
 
@@ -238,8 +238,8 @@ describe('nuk', function () {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
                 expressions: [
-                    "react/umd -d umd",
-                    "react/cjs -d cjs"
+                    "react/umd",
+                    "react/cjs"
                 ]
             });
 
@@ -269,8 +269,8 @@ describe('nuk', function () {
             fs.writeJsonSync('test/cwd/nuk.json', {
                 folderName: 'my-vendors',
                 expressions: [
-                    "react/umd -d umd",
-                    "react/cjs -d cjs"
+                    "react/umd",
+                    "react/cjs"
                 ]
             });
 
@@ -301,10 +301,10 @@ describe('nuk', function () {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
                 expressions: [
-                    "doz@2.4.7/dist -d thedest",
-                    "doz/dist -d mydest",
-                    "react/umd -d umd",
-                    "react/cjs -d cjs"
+                    "doz@2.4.7/dist",
+                    "doz/dist",
+                    "react/umd",
+                    "react/cjs"
                 ]
             });
 
@@ -352,10 +352,10 @@ describe('nuk', function () {
 
             fs.writeJsonSync('test/cwd/nuk.json', {
                 expressions: [
-                    "doz@2.4.7/dist -d thedest",
-                    "doz/dist -d mydest",
-                    "react/umd -d umd",
-                    "react/cjs -d cjs"
+                    "doz@2.4.7/dist",
+                    "doz/dist",
+                    "react/umd",
+                    "react/cjs"
                 ]
             });
 
@@ -433,8 +433,8 @@ describe('nuk', function () {
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
-                "react/umd -d umd",
-                "react/cjs -d cjs",
+                "react/umd",
+                "react/cjs",
                 TESTING
             ]);
 
@@ -475,8 +475,8 @@ describe('nuk', function () {
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
-                "react/umd -d umd",
-                "react/cjs -d cjs",
+                "react/umd",
+                "react/cjs",
                 TESTING
             ]);
 
@@ -527,8 +527,8 @@ describe('nuk', function () {
                 'install',
                 'swiper/js/swiper.min.js',
                 'swiper/css',
-                "react/umd -d umd",
-                "react/cjs -d cjs",
+                "react/umd",
+                "react/cjs",
                 TESTING
             ]);
 
@@ -547,11 +547,12 @@ describe('nuk', function () {
                 let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
                 nukJSON.bundleFiles = {
                     bundle1: [
-                        'swiper-5.4.1/swiper.min.css',
+                        'swiper-5.4.1/css/swiper.min.css',
                         'react-16.13.1/umd/react.production.min.js'
                     ],
                     bundle2: [
-                        'react-16.13.1/umd/react.profiling.min.js'
+                        'react-16.13.1/umd/react.profiling.min.js',
+                        'swiper-5.4.1/js/swiper.min.js',
                     ]
                 };
 
