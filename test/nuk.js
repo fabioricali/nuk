@@ -347,6 +347,56 @@ describe('nuk', function () {
                 });
             });
         });
+        it('uninstall all doz version', function (done) {
+
+            fs.writeJsonSync('test/cwd/nuk.json', {
+                expressions: [
+                    "doz@2.4.7/dist",
+                    "doz/dist",
+                    "react/umd",
+                    "react/cjs"
+                ]
+            });
+
+            const cli = spawn('node', [
+                'src/nuk.js',
+                'install',
+                '',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+
+                const cli2 = spawn('node', [
+                    'src/nuk.js',
+                    'uninstall',
+                    'doz',
+                    TESTING
+                ]);
+
+                cli2.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli2.stderr.on('data', data => {
+                    console.error(`${data}`);
+                });
+
+                cli2.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    done()
+                });
+            });
+        });
 
         it('uninstall empty name', function (done) {
 
@@ -575,6 +625,48 @@ describe('nuk', function () {
                 cli2.on('close', code => {
                     console.log(`child process exited with code ${code}`);
                     done()
+                });
+            });
+        });
+        describe('update', function () {
+            it('update to latest version', function (done) {
+                const cli = spawn('node', [
+                    'src/nuk.js',
+                    'install',
+                    'doz@2.4.7',
+                    TESTING
+                ]);
+
+                cli.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli.stderr.on('data', data => {
+                    console.error(`${data}`);
+                    done(`${data}`);
+                });
+
+                cli.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    const cli2 = spawn('node', [
+                        'src/nuk.js',
+                        'update',
+                        'doz',
+                        TESTING
+                    ]);
+
+                    cli2.stdout.on('data', data => {
+                        console.log(`${data}`);
+                    });
+
+                    cli2.stderr.on('data', data => {
+                        console.error(`${data}`);
+                    });
+
+                    cli2.on('close', code => {
+                        console.log(`child process exited with code ${code}`);
+                        done()
+                    });
                 });
             });
         });

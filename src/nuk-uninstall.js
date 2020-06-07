@@ -5,6 +5,18 @@ const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, TESTING} = req
 const chalk = require('chalk');
 const fs = require('fs-extra');
 
+async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock) {
+    // Remove package
+    await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${nukJSONLock.packages[packageToUninstall].folder}`);
+
+    // Remove expression from expressions
+    nukJSON.expressions = nukJSON.expressions.filter(expression =>
+        !nukJSONLock.packages[packageToUninstall].expressions.includes(expression)
+    )
+    // Remove form packages of nuk.json
+    delete nukJSONLock.packages[packageToUninstall];
+}
+
 (async function () {
 
     try {
@@ -34,6 +46,8 @@ const fs = require('fs-extra');
 
         if (await fs.pathExists(NUK_JSON_LOCK_FILENAME)) {
             nukJSONLock = Object.assign({}, nukJSONLock, await fs.readJson(NUK_JSON_LOCK_FILENAME));
+        } else {
+            return console.error('nuk-lock.json is required');
         }
 
         _VENDORS_FOLDER = nukJSON.folderName || _VENDORS_FOLDER;
@@ -45,28 +59,35 @@ const fs = require('fs-extra');
 
         let totalOperation = 0;
 
+        let packagesKeys = Object.keys(nukJSONLock.packages);
+
         try {
             for (let i = 0; i < distPackages.length; i++) {
 
                 let packageToUninstall = distPackages[i];
 
+                console.log(`remove: ${packageToUninstall}...`);
                 if (!packageToUninstall
-                    || !nukJSONLock.packages
-                    || !nukJSONLock.packages[packageToUninstall]
-                    || !nukJSONLock.packages[packageToUninstall].folder
                 ) continue;
 
-                console.log(`remove: ${packageToUninstall}...`);
-
-                // Remove package
-                await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${nukJSONLock.packages[packageToUninstall].folder}`);
-
-                // Remove expression from expressions
-                nukJSON.expressions = nukJSON.expressions.filter(expression =>
-                    !nukJSONLock.packages[packageToUninstall].expressions.includes(expression)
-                )
-                // Remove form packages of nuk.json
-                delete nukJSONLock.packages[packageToUninstall];
+                // if uninstall a specific version
+                if (packageToUninstall.includes('@')) {
+                    if (nukJSONLock.packages[packageToUninstall] && nukJSONLock.packages[packageToUninstall].folder) {
+                        // Remove package
+                        await removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock);
+                    }
+                } else {
+                    // if uninstall with name only
+                    for (let y = 0; y < packagesKeys.length; y++) {
+                        let packageWithoutVersion = packagesKeys[y].split('@')[0];
+                        if (packageWithoutVersion === packageToUninstall) {
+                            if (nukJSONLock.packages[packagesKeys[y]] && nukJSONLock.packages[packagesKeys[y]].folder) {
+                                // Remove package
+                                await removePackage(packagesKeys[y], CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock);
+                            }
+                        }
+                    }
+                }
 
                 totalOperation++;
             }

@@ -8,7 +8,7 @@ for traffic reasons? For example, it happens to me with unkpg.com. Get the files
 it is not done. Too big. So I thought of creating a simple package manager (I don't know if I can call it that) that 
 simply downloads the resources you want in a folder.
 
-***The files should be kept "local". But if you have your own CDN, even better.*** 😎
+***The files should be kept "local". If you have your own CDN, even better.*** 😎
 
 ## Installation
 ```
@@ -43,7 +43,12 @@ Obviously you can install the version you want (**recommended**):
 $ nuk install react@16.12.0/umd
 ```
 
-If you want to know quickly which files you can include in a given package then you can use "list":
+For updating the package to the latest version use `update`
+```
+$ nuk update react
+```
+
+If you want to know quickly which files you can include in a given package then you can use `list`:
 ```
 $ nuk list react
 ```
