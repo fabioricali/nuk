@@ -629,11 +629,52 @@ describe('nuk', function () {
             });
         });
         describe('update', function () {
-            it('update to latest version', function (done) {
+            it('update to latest version (all resources of a package)', function (done) {
                 const cli = spawn('node', [
                     'src/nuk.js',
                     'install',
                     'doz@2.4.7',
+                    TESTING
+                ]);
+
+                cli.stdout.on('data', data => {
+                    console.log(`${data}`);
+                });
+
+                cli.stderr.on('data', data => {
+                    console.error(`${data}`);
+                    done(`${data}`);
+                });
+
+                cli.on('close', code => {
+                    console.log(`child process exited with code ${code}`);
+                    const cli2 = spawn('node', [
+                        'src/nuk.js',
+                        'update',
+                        'doz',
+                        TESTING
+                    ]);
+
+                    cli2.stdout.on('data', data => {
+                        console.log(`${data}`);
+                    });
+
+                    cli2.stderr.on('data', data => {
+                        console.error(`${data}`);
+                    });
+
+                    cli2.on('close', code => {
+                        console.log(`child process exited with code ${code}`);
+                        done()
+                    });
+                });
+            });
+
+            it('update to latest version (dist folder only)', function (done) {
+                const cli = spawn('node', [
+                    'src/nuk.js',
+                    'install',
+                    'doz@2.4.7/dist',
                     TESTING
                 ]);
 

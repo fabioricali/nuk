@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.1] - 2020-06-07
+- **Fixed** command `update`: now maintains previous expressions
+
 ## [0.7.0] - 2020-06-07
 - **Added** command `update`
 
