@@ -22,7 +22,7 @@ Do you need to install only the UMD version of React?
 $ nuk install react/umd
 ```
 
-After this a `vendors/react-x.x.x/umd` folder will be created with only the files of the React umd folder present in the package on npm.
+After this a `vendors/react/umd` folder will be created with only the files of the React umd folder present in the package on npm.
 Now, you can include your file:
 ```html
 <script src="vendors/react/umd/react.production.min.js"></script>
