@@ -544,8 +544,8 @@ describe('nuk', function () {
 
                 let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
                 nukJSON.bundleFiles = [
-                    'swiper-5.4.1/swiper.min.css',
-                    'react-16.13.1/umd/react.production.min.js'
+                    'swiper/css/swiper.min.css',
+                    'react/umd/react.production.min.js'
                 ];
 
                 fs.writeJsonSync('test/cwd/nuk.json', nukJSON);
@@ -597,12 +597,12 @@ describe('nuk', function () {
                 let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
                 nukJSON.bundleFiles = {
                     bundle1: [
-                        'swiper-5.4.1/css/swiper.min.css',
-                        'react-16.13.1/umd/react.production.min.js'
+                        'swiper/css/swiper.min.css',
+                        'react/umd/react.production.min.js'
                     ],
                     bundle2: [
-                        'react-16.13.1/umd/react.profiling.min.js',
-                        'swiper-5.4.1/js/swiper.min.js',
+                        'react/umd/react.profiling.min.js',
+                        'swiper/js/swiper.min.js',
                     ]
                 };
 

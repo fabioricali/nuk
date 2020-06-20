@@ -7,7 +7,8 @@ const fs = require('fs-extra');
 
 async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock) {
     // Remove package
-    await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${nukJSONLock.packages[packageToUninstall].folder}`);
+    //await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${nukJSONLock.packages[packageToUninstall].folder}`);
+    await fs.remove(`${CWD}/${_VENDORS_FOLDER}/${packageToUninstall}`);
 
     // Remove expression from expressions
     nukJSON.expressions = nukJSON.expressions.filter(expression =>
@@ -72,7 +73,7 @@ async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, 
 
                 // if uninstall a specific version
                 if (packageToUninstall.includes('@')) {
-                    if (nukJSONLock.packages[packageToUninstall] && nukJSONLock.packages[packageToUninstall].folder) {
+                    if (nukJSONLock.packages[packageToUninstall] /*&& nukJSONLock.packages[packageToUninstall].folder*/) {
                         // Remove package
                         await removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock);
                     }
@@ -81,7 +82,7 @@ async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, 
                     for (let y = 0; y < packagesKeys.length; y++) {
                         let packageWithoutVersion = packagesKeys[y].split('@')[0];
                         if (packageWithoutVersion === packageToUninstall) {
-                            if (nukJSONLock.packages[packagesKeys[y]] && nukJSONLock.packages[packagesKeys[y]].folder) {
+                            if (nukJSONLock.packages[packagesKeys[y]] /*&& nukJSONLock.packages[packagesKeys[y]].folder*/) {
                                 // Remove package
                                 await removePackage(packagesKeys[y], CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock);
                             }

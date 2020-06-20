@@ -3,7 +3,7 @@
 const program = require('commander');
 const util = require('util');
 //const downloadRepo = util.promisify(require('download-git-repo'));
-const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, /*REGEX_GET_ARGS, */TESTING} = require('./constants');
+const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, PROCESSING_FOLDER, REGEX_GET_INFO_FROM_TGZ, TESTING} = require('./constants');
 const chalk = require('chalk');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs-extra');
@@ -51,8 +51,6 @@ const decompressTargz = require('decompress-targz');
         const CWD = process.cwd();
         let installAll = false;
 
-        //console.log(program.args)
-
         if (!distPackages.length) {
             distPackages = Object.assign([], nukJSON.expressions);
             installAll = true;
@@ -69,25 +67,15 @@ const decompressTargz = require('decompress-targz');
 
                 console.log(`expression: ${distPackageExpression}...`);
 
-                //let destinationFolder = (program.destination || '').trim();
-
-                // Extract packageName with a possible path
-                //let distPackageMatchAll = [...matchAll(distPackageExpression, REGEX_GET_ARGS)];
-
-                //let packageNameWithPossiblePath = distPackageMatchAll[0][0];
-
-                // This works when use installation from nuk.json
-                // overwrite program.destination
-                /*if (distPackageMatchAll[1] && distPackageMatchAll[1][2] === '-d') {
-                    destinationFolder = distPackageMatchAll[1][3];
-                }*/
-
                 // Split expression by / then get possible path
                 //let distPackageParts = packageNameWithPossiblePath.split('/');
                 let distPackageParts = distPackageExpression.split('/');
 
                 // Get the package name from expression
-                let distPackageName = distPackageParts[0];
+                let distPackageNameWithPossibleVersion = distPackageParts[0];
+                let distPackageNamePart = distPackageNameWithPossibleVersion.split('@');
+                let version = distPackageNamePart[1] || '';
+                let distPackageName = distPackageNamePart[0];
 
                 // Remove first item.. package name
                 distPackageParts.shift();
@@ -96,10 +84,10 @@ const decompressTargz = require('decompress-targz');
                 let packageFilesPath = distPackageParts.join('/');
 
                 if (!packagesMap[distPackageName]) {
-                    console.log(chalk.cyanBright(`get ${distPackageName} from npm...`));
+                    console.log(chalk.cyanBright(`get ${distPackageNameWithPossibleVersion} from npm...`));
 
                     // Get tgz file using npm pack
-                    let tgzFile = (await exec(`npm pack ${distPackageName}`)).stdout.trim();
+                    let tgzFile = (await exec(`npm pack ${distPackageNameWithPossibleVersion}`)).stdout.trim();
 
                     // Add package to map
                     packagesMap[distPackageName] = tgzFile;
@@ -116,7 +104,10 @@ const decompressTargz = require('decompress-targz');
                 }
 
                 let tgzFile = packagesMap[distPackageName];
-                let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
+                //let fileWithoutTgz = tgzFile.split('.').slice(0, -1).join('.');
+                let matchInfoTgz = tgzFile.match(REGEX_GET_INFO_FROM_TGZ)
+                //let fileWithoutTgz = matchInfoTgz[1];
+                version = matchInfoTgz[2];
 
                 let copyFrom = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${PROCESSING_FOLDER}/${tgzFile}/package/${packageFilesPath}`);
                 //console.log('copyFrom', copyFrom);
@@ -125,7 +116,7 @@ const decompressTargz = require('decompress-targz');
                     //destinationFolder += '/' + packageFilesPath;
                     //destinationFolder += '/' + packageFilesPath;
                 //let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
-                let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${packageFilesPath}`);
+                let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${distPackageName}/${packageFilesPath}`);
 
                 // Copy preselected folder to final destination
                 await fs.copy(copyFrom, copyTo);
@@ -137,15 +128,12 @@ const decompressTargz = require('decompress-targz');
 
                 if (!nukJSONLock.packages[distPackageName]) {
                     nukJSONLock.packages[distPackageName] = {
-                        folder: fileWithoutTgz,
+                        //folder: fileWithoutTgz,
+                        version,
                         paths: [],
                         expressions: []
                     }
                 }
-
-                /*if (destinationFolder && !nukJSONLock.packages[distPackageName].paths.includes(destinationFolder)) {
-                    nukJSONLock.packages[distPackageName].paths.push(destinationFolder);
-                }*/
 
                 if (packageFilesPath && !nukJSONLock.packages[distPackageName].paths.includes(packageFilesPath)) {
                     nukJSONLock.packages[distPackageName].paths.push(packageFilesPath);

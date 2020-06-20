@@ -98,6 +98,8 @@ const fs = require('fs-extra');
                 await concat(bundleOperationMap[bundleName].filesCSS, CWD + '/' + VENDORS_FOLDER + '/' + bundleName + '.css');
         }
 
+        console.log('bundle complete');
+
     } catch (e) {
         console.error(e.message);
     }

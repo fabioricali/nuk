@@ -25,7 +25,7 @@ $ nuk install react/umd
 After this a `vendors/react-x.x.x/umd` folder will be created with only the files of the React umd folder present in the package on npm.
 Now, you can include your file:
 ```html
-<script src="vendors/react-x.x.x/umd/react.production.min.js"></script>
+<script src="vendors/react/umd/react.production.min.js"></script>
 ```
 
 PS: if it doesn't already exist, a configuration file called `nuk.json` will be automatically created. This serves as 
@@ -79,8 +79,8 @@ the "bundleFiles" property to your nuk.json:
 ```json
 {
   "bundleFiles": [
-    "swiper-5.4.1/css/swiper.min.css",
-    "react-16.13.1/umd/react.production.min.js"  
+    "swiper/css/swiper.min.css",
+    "react/umd/react.production.min.js"  
   ]
 }
 ```
@@ -100,11 +100,11 @@ if you need to diversify the bundles you can then do so:
 {
     "bundleFiles": {
         "bundle1": [
-            "swiper-5.4.1/css/swiper.min.css",
-            "react-16.13.1/umd/react.production.min.js"
+            "swiper/css/swiper.min.css",
+            "react/umd/react.production.min.js"
         ],
         "bundle2": [
-            "react-16.13.1/umd/react.profiling.min.js"
+            "react/umd/react.profiling.min.js"
         ]
     }
 }
