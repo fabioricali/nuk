@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/fabioricali/nuk#readme",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.27.2",
     "chalk": "^2.4.1",
     "clear": "^0.1.0",
     "commander": "^5.1.0",
@@ -44,6 +44,7 @@
     "figlet": "^1.2.0",
     "fs-extra": "^7.0.0",
     "package-json": "^6.5.0",
+    "parse-package-name": "^1.0.0",
     "readdirp": "^3.4.0",
     "replace-in-file": "^6.0.0",
     "string.prototype.matchall": "^4.0.2"

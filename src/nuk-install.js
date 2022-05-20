@@ -11,6 +11,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const decompress = require('decompress');
 const decompressTargz = require('decompress-targz');
+const scopeRegex = /(@[\w-]+)\/([\w-]+)(@\d+\.\d+.\d+)?(.*)?/gm;
+const {parse} = require('parse-package-name');
 
 (async function () {
 
@@ -67,21 +69,23 @@ const decompressTargz = require('decompress-targz');
 
                 console.log(`expression: ${distPackageExpression}...`);
 
+                let distPackageExpressionParsed = parse(distPackageExpression);
+                //console.log(distPackageExpressionParsed)
+
                 // Split expression by / then get possible path
-                //let distPackageParts = packageNameWithPossiblePath.split('/');
-                let distPackageParts = distPackageExpression.split('/');
+                //let distPackageParts = distPackageExpression.split('/');
 
                 // Get the package name from expression
-                let distPackageNameWithPossibleVersion = distPackageParts[0];
-                let distPackageNamePart = distPackageNameWithPossibleVersion.split('@');
-                let version = distPackageNamePart[1] || '';
-                let distPackageName = distPackageNamePart[0];
+                let distPackageNameWithPossibleVersion = distPackageExpressionParsed.name + '@' + distPackageExpressionParsed.version;// distPackageParts[0];
+                //let distPackageNamePart = distPackageNameWithPossibleVersion.split('@');
+                let version = distPackageExpressionParsed.version;// distPackageNamePart[1] || '';
+                let distPackageName = distPackageExpressionParsed.name;// distPackageNamePart[0];
 
-                // Remove first item.. package name
-                distPackageParts.shift();
+                // Remove first item... package name
+                //distPackageParts.shift();
 
                 // Recompose path for getting the folder
-                let packageFilesPath = distPackageParts.join('/');
+                let packageFilesPath = distPackageExpressionParsed.path;// distPackageParts.join('/');
 
                 if (!packagesMap[distPackageName]) {
                     console.log(chalk.cyanBright(`get ${distPackageNameWithPossibleVersion} from npm...`));

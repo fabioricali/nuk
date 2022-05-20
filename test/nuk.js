@@ -65,6 +65,29 @@ describe('nuk', function () {
             });
         });
 
+        it('install single package with scope', function (done) {
+            const cli = spawn('node', [
+                'src/nuk.js',
+                'install',
+                '@babel/preset-env',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
         it('install single package with version and determinate folder', function (done) {
             const cli = spawn('node', [
                 'src/nuk.js',
