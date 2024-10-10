@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/fabioricali/nuk#readme",
   "dependencies": {
-    "axios": "1.7.4",
+    "axios": "^1.7.7",
     "chalk": "^2.4.1",
     "clear": "^0.1.0",
     "commander": "^5.1.0",
