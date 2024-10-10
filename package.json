@@ -1,6 +1,6 @@
 {
   "name": "nuk",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "A package manager that installs only what you need.",
   "main": "index.js",
   "bin": {
