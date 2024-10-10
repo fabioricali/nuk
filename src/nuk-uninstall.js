@@ -4,6 +4,7 @@ const program = require('commander');
 const {NUK_JSON_FILENAME, NUK_JSON_LOCK_FILENAME, VENDORS_FOLDER, TESTING} = require('./constants');
 const chalk = require('chalk');
 const fs = require('fs-extra');
+const {splitAtLastAt} = require("./helper");
 
 async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock) {
     // Remove package
@@ -72,7 +73,8 @@ async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, 
                 ) continue;
 
                 // if uninstall a specific version
-                if (packageToUninstall.includes('@')) {
+                // if (packageToUninstall.includes('@')) {
+                if (splitAtLastAt(packageToUninstall)[1]) {
                     if (nukJSONLock.packages[packageToUninstall] /*&& nukJSONLock.packages[packageToUninstall].folder*/) {
                         // Remove package
                         await removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, nukJSONLock);
@@ -80,7 +82,8 @@ async function removePackage(packageToUninstall, CWD, _VENDORS_FOLDER, nukJSON, 
                 } else {
                     // if uninstall with name only
                     for (let y = 0; y < packagesKeys.length; y++) {
-                        let packageWithoutVersion = packagesKeys[y].split('@')[0];
+                        // let packageWithoutVersion = packagesKeys[y].split('@')[0];
+                        let packageWithoutVersion = splitAtLastAt(packagesKeys[y])[0];
                         if (packageWithoutVersion === packageToUninstall) {
                             if (nukJSONLock.packages[packagesKeys[y]] /*&& nukJSONLock.packages[packagesKeys[y]].folder*/) {
                                 // Remove package

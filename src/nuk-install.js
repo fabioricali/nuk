@@ -11,6 +11,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const decompress = require('decompress');
 const decompressTargz = require('decompress-targz');
+const {splitAtLastAt, splitStringPath} = require("./helper");
 
 (async function () {
 
@@ -69,17 +70,20 @@ const decompressTargz = require('decompress-targz');
 
                 // Split expression by / then get possible path
                 //let distPackageParts = packageNameWithPossiblePath.split('/');
-                let distPackageParts = distPackageExpression.split('/');
+                // let distPackageParts = distPackageExpression.split('/');
 
+                let distPackageParts = splitStringPath(distPackageExpression);
+                // console.log(distPackageParts)
                 // Get the package name from expression
                 let distPackageNameWithPossibleVersion = distPackageParts[0];
-                let distPackageNamePart = distPackageNameWithPossibleVersion.split('@');
+                // let distPackageNamePart = distPackageNameWithPossibleVersion.split('@');
+                let distPackageNamePart = splitAtLastAt(distPackageNameWithPossibleVersion);
                 let version = distPackageNamePart[1] || '';
                 let distPackageName = distPackageNamePart[0];
-
-                // Remove first item.. package name
+                // console.log('distPackageNamePart', distPackageNamePart)
+                // Remove first item... package name
                 distPackageParts.shift();
-
+                // console.log(distPackageParts)
                 // Recompose path for getting the folder
                 let packageFilesPath = distPackageParts.join('/');
 
@@ -116,6 +120,8 @@ const decompressTargz = require('decompress-targz');
                     //destinationFolder += '/' + packageFilesPath;
                     //destinationFolder += '/' + packageFilesPath;
                 //let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${fileWithoutTgz}/${destinationFolder}`);
+                // console.log('distPackageName', `${distPackageName}`)
+                // console.log('packageFilesPath', `${packageFilesPath}`)
                 let copyTo = path.normalize(`${CWD}/${_VENDORS_FOLDER}/${distPackageName}/${packageFilesPath}`);
 
                 // Copy preselected folder to final destination

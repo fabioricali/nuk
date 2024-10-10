@@ -42,6 +42,30 @@ describe('nuk', function () {
             });
         });
 
+        it('install single package with namespace', function (done) {
+            const cli = spawn('node', [
+                'src/nuk.js',
+                'install',
+                '@videojs/http-streaming',
+                '@vue/compiler-sfc/dist/compiler-sfc.esm-browser.js',
+                TESTING
+            ]);
+
+            cli.stdout.on('data', data => {
+                console.log(`${data}`);
+            });
+
+            cli.stderr.on('data', data => {
+                console.error(`${data}`);
+                done(`${data}`);
+            });
+
+            cli.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                done()
+            });
+        });
+
         it('install single package with version', function (done) {
             const cli = spawn('node', [
                 'src/nuk.js',
@@ -115,7 +139,7 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js', 'swiper/css',
+                'swiper/swiper.min.js', 'swiper/swiper.min.css',
                 TESTING
             ]);
 
@@ -138,7 +162,7 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js', 'swiper/css/swiper.min.css',
+                'swiper/swiper.min.js', 'swiper/swiper.min.css',
                 TESTING
             ]);
 
@@ -161,7 +185,7 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js -d myjs', 'swiper/css/swiper.min.css -d mycss',
+                'swiper/swiper.min.js -d myjs', 'swiper/swiper.min.css -d mycss',
                 TESTING
             ]);
 
@@ -481,8 +505,8 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js',
-                'swiper/css',
+                'swiper/swiper.min.js',
+                'swiper/swiper.min.css',
                 "react/umd",
                 "react/cjs",
                 TESTING
@@ -523,8 +547,8 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js',
-                'swiper/css',
+                'swiper/swiper.min.js',
+                'swiper/swiper.min.css',
                 "react/umd",
                 "react/cjs",
                 TESTING
@@ -544,7 +568,7 @@ describe('nuk', function () {
 
                 let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
                 nukJSON.bundleFiles = [
-                    'swiper/css/swiper.min.css',
+                    'swiper/swiper.min.css',
                     'react/umd/react.production.min.js'
                 ];
 
@@ -575,8 +599,8 @@ describe('nuk', function () {
             const cli = spawn('node', [
                 'src/nuk.js',
                 'install',
-                'swiper/js/swiper.min.js',
-                'swiper/css',
+                'swiper/swiper.min.js',
+                'swiper/swiper.min.css',
                 "react/umd",
                 "react/cjs",
                 TESTING
@@ -597,12 +621,12 @@ describe('nuk', function () {
                 let nukJSON = fs.readJsonSync('test/cwd/nuk.json');
                 nukJSON.bundleFiles = {
                     bundle1: [
-                        'swiper/css/swiper.min.css',
+                        'swiper/swiper.min.css',
                         'react/umd/react.production.min.js'
                     ],
                     bundle2: [
                         'react/umd/react.profiling.min.js',
-                        'swiper/js/swiper.min.js',
+                        'swiper/swiper.min.js',
                     ]
                 };
 

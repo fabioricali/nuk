@@ -5,6 +5,7 @@ const util = require('util');
 const fs = require('fs-extra');
 const {NUK_JSON_LOCK_FILENAME, TESTING} = require('./constants');
 const chalk = require('chalk');
+const {splitAtLastAt, splitStringPath} = require("./helper");
 const exec = util.promisify(require('child_process').exec);
 
 (async function () {
@@ -15,7 +16,8 @@ const exec = util.promisify(require('child_process').exec);
 
         const isTesting = program.args.length && program.args[program.args.length - 1] === TESTING;
         let packageName = program.args[0];
-        packageName = packageName.split('@')[0];
+        // packageName = packageName.split('@')[0];
+        packageName = splitAtLastAt(packageName)[0];
         let nukJSONLock = {}
 
         if (isTesting) {
@@ -37,10 +39,12 @@ const exec = util.promisify(require('child_process').exec);
         let expressions = [];
 
         for (let y = 0; y < packagesKeys.length; y++) {
-            let packageWithoutVersion = packagesKeys[y].split('@')[0];
+            // let packageWithoutVersion = packagesKeys[y].split('@')[0];
+            let packageWithoutVersion = splitAtLastAt(packagesKeys[y])[0];
             if (packageWithoutVersion === packageName) {
                 expressions = nukJSONLock.packages[packagesKeys[y]].expressions.map(item => {
-                    let itemParts = item.split('/');
+                    // let itemParts = item.split('/');
+                    let itemParts = splitStringPath(item);
                     itemParts.shift();
                     if(itemParts.length)
                         return `${packageName}@${latestVersion}/${itemParts.join('/')}`;
